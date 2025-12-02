@@ -61,12 +61,15 @@ class OutputManager(OutputManagerBase):
         self.journal = journal
         self.monitorJobs = []
         self.fieldOutputController = fieldOutputController
+        self.export = False
 
     def updateDefinition(self, **kwargs: dict):
         self.fpF = self.fieldOutputController.fieldOutputs[kwargs["forceFieldOutput"]]
         self.fpU = self.fieldOutputController.fieldOutputs[kwargs["displacementFieldOutput"]]
         self.A = createMathExpression(kwargs["fractureArea"])(0.0)
         self.fractureEnergy = 0.0
+        if "export" in kwargs:
+            self.export = True
 
     def initializeJob(self):
         pass
@@ -93,3 +96,6 @@ class OutputManager(OutputManagerBase):
             "integrated fracture energy: {:3.4f}".format(self.fractureEnergy),
             self.identification,
         )
+        if self.export:
+            with open("fracture_energy_value.txt", "w") as f:
+                f.write("{:3.8f}\n".format(self.fractureEnergy))
