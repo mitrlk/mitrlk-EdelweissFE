@@ -50,6 +50,11 @@ def mumpsSolve(A, b):
         The solution vector x.
     """
 
+    # b may be a DofVector (an ndarray subclass with custom copy()/__getitem__ that rely
+    # on an entitiesInDofVector mapping which is not preserved through reshape/slicing).
+    # Work on a plain ndarray so the solver uses standard numpy semantics.
+    b = np.asarray(b)
+
     ctx = DMumpsContext()
     ctx.set_silent()
 
