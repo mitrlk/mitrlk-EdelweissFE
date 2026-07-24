@@ -169,27 +169,34 @@ extensions += [
     )
 ]
 
-print("Gather the pardiso interface")
-extensions += [
-    Extension(
-        "*",
-        sources=[
-            "edelweissfe/linsolve/pardiso/pardiso.pyx",
-        ],
-        include_dirs=[
-            numpy.get_include(),
-            mkl_include,
-        ],
-        libraries=[
-            "mkl_gnu_thread",
-            "mkl_core",
-            "mkl_rt",
-            "mkl_gf_lp64",
-            "iomp5",
-        ],
-        language="c++",
-    )
-]
+# Intel MKL is x86-only and unavailable on arm64 (Apple Silicon). Only build the
+# MKL-based Pardiso backend when its header (mkl.h) is actually available; otherwise
+# skip it so the rest of EdelweissFE still builds. Other solvers (gmres, mumps,
+# superlu/scipy) remain available.
+if os.path.exists(join(mkl_include, "mkl.h")):
+    print("Gather the pardiso interface")
+    extensions += [
+        Extension(
+            "*",
+            sources=[
+                "edelweissfe/linsolve/pardiso/pardiso.pyx",
+            ],
+            include_dirs=[
+                numpy.get_include(),
+                mkl_include,
+            ],
+            libraries=[
+                "mkl_gnu_thread",
+                "mkl_core",
+                "mkl_rt",
+                "mkl_gf_lp64",
+                "iomp5",
+            ],
+            language="c++",
+        )
+    ]
+else:
+    print("Skipping the pardiso interface: mkl.h not found in " + mkl_include + " (MKL unavailable, e.g. on arm64).")
 
 
 if buildPanuaPardiso:
