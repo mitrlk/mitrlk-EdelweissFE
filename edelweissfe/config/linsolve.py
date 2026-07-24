@@ -53,9 +53,35 @@ def getLinSolverByName(linsolverName, opts):
 
         return lambda A, b: spsolve(A, b, use_umfpack=True)
     elif linsolverName.lower() == "pardiso":
-        from edelweissfe.linsolve.pardiso.pardiso import pardisoSolve
+        try:
+            from edelweissfe.linsolve.pardiso.pardiso import pardisoSolve
 
-        return pardisoSolve
+            return pardisoSolve
+        except ImportError:
+            # Intel MKL (and hence the Pardiso backend) is unavailable on some platforms,
+            # e.g. arm64/Apple Silicon. Fall back to another direct sparse solver:
+            # prefer MUMPS (if installed), otherwise SciPy's SuperLU. Both are direct
+            # LU solvers and yield numerically equivalent results.
+            import warnings
+
+            try:
+                from edelweissfe.linsolve.mumps.mumps import mumpsSolve
+
+                warnings.warn(
+                    "Pardiso (MKL) backend is unavailable on this platform; "
+                    "falling back to the MUMPS direct solver.",
+                    RuntimeWarning,
+                )
+                return mumpsSolve
+            except ImportError:
+                from scipy.sparse.linalg import spsolve
+
+                warnings.warn(
+                    "Pardiso (MKL) backend is unavailable on this platform; "
+                    "falling back to the SuperLU (scipy) direct solver.",
+                    RuntimeWarning,
+                )
+                return lambda A, b: spsolve(A, b, use_umfpack=False)
     elif linsolverName.lower() == "panuapardiso":
         from edelweissfe.linsolve.panuapardiso.panuapardiso import panuaPardisoSolve
 
