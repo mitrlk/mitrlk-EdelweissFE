@@ -983,6 +983,16 @@ class OutputManager(OutputManagerBase):
 
         self.writeOutput(self.model)
 
+        # Refresh the .case index after every output step, not only at the end of the job.
+        # WHY: the index was written in finalizeJob alone, so a run that was killed, hit a
+        # non-convergence abort, or is simply still going left a complete set of .geo and .var
+        # files that NOTHING can open, because the index naming them does not exist yet. That
+        # happened repeatedly on long jobs and the output had to be reverse-engineered from the
+        # .var file sizes. The index is a few kB of text and is rewritten in full each time, so
+        # the cost is negligible next to writing the step itself, and the file on disk is always
+        # openable while the job runs.
+        self.ensightCase.finalize(replaceTimeValuesByEnumeration=False, closeFileHandes=False)
+
     def finalizeFailedIncrement(self, **kwargs):
         pass
 
