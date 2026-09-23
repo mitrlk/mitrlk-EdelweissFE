@@ -1,5 +1,9 @@
 docutils
 matplotlib
 pyamg
-pyvista
+# pyvista 0.49.0 added a hard dependency on pyvista-validation==0.2.2, which builds with
+# py_limited_api="cp310". CPython forbids Py_LIMITED_API under Py_GIL_DISABLED
+# (python/cpython#111506), so it cannot build on the free-threaded interpreter this CI uses and
+# "pip install -r pip_requirements.txt" fails before any code runs. 0.48.4 has no such dependency.
+pyvista<0.49
 vtk
