@@ -193,6 +193,7 @@ _addBuiltins(
         "nodetodiscreterigidbodypenalty",
         "nodetorigidsurfacepenalty",
         "penaltyindirectcontrol",
+        "planesymmetrypenalty",
         "rigidbody",
         "surfacetodeformablesurfacepenalty",
         "surfacetodiscreterigidbodypenalty",
