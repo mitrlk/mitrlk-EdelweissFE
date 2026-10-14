@@ -106,6 +106,21 @@ Module ``edelweissfe.constraints.directionalspringpenalty``
     :language: edelweiss
     :caption: Example: ``testfiles/marmot/DirectionalSpringPenaltyConstraint/test.inp``
 
+``planesymmetrypenalty`` - Symmetry plane with an arbitrary normal (u . n = 0)
+------------------------------------------------------------------------------
+
+Module ``edelweissfe.constraints.planesymmetrypenalty``
+
+.. automodule:: edelweissfe.constraints.planesymmetrypenalty
+    :members: __doc__
+
+.. pprint:: constraint:planesymmetrypenalty
+    :caption: Options:
+
+.. literalinclude:: ../../../testfiles/edelweiss-only/PlaneSymmetryPenaltyConstraint/test.inp
+    :language: edelweiss
+    :caption: Example: ``testfiles/edelweiss-only/PlaneSymmetryPenaltyConstraint/test.inp``
+
 ``nodetorigidsurfacepenalty`` - Preventing nodes from penetrating a defined rigid boundary
 -----------------------------------------------------------------------------------------------
 
