@@ -1,0 +1,50 @@
+** A unit cube, 2x2x2 C3D8, pulled in x at the right face. Its left face (x=0) is a symmetry
+** plane with the oblique normal n = (1, 1, 0)/sqrt(2): every node there must satisfy u . n = 0,
+** which no single-component Dirichlet condition can express. The monitor planeViolation reports
+** max |u . n| on that face; it must stay at the penalty-limited level (force / penalty).
+** The node at the origin is held in y: with the constraint this also holds it in x, which
+** removes the rigid translation along the plane that the pull alone would otherwise permit.
+*material, name=linearelastic, id=mat, provider=edelweiss
+18000, 0.2
+
+*section, name=sec, material=mat, type=solid
+gen_all
+
+*modelGenerator, generator=boxGen, name=gen
+nX      =2
+nY      =2
+nZ      =2
+x0      =0
+y0      =0
+z0      =0
+lX      =1
+lY      =1
+lZ      =1
+elType  =C3D8
+elProvider=edelweiss
+
+*job, name=planeSymmetryPenalty, domain=3d
+*solver, solver=NIST, name=theSolver
+
+*fieldOutput
+>>perNode, elSet=gen_all, field=displacement, result=U, name=displacement
+>>perNode, nSet=gen_left, field=displacement, result=U, name=planeViolation, f(x)='max(abs(0.7071067811865476*x[:,0] + 0.7071067811865476*x[:,1]))'
+>>perNode, nSet=gen_right, field=displacement, result=P, name=RF, f(x)='sum(x[:,0])'
+
+*output, type=monitor, name=mon
+fieldOutput=planeViolation
+fieldOutput=RF
+
+*constraint, type=planeSymmetryPenalty, name=obliquePlane
+nSet=gen_left
+field=displacement
+nx=1.0
+ny=1.0
+nz=0.0
+penalty=1e8
+
+*step, solver=theSolver
+maxInc=0.5, minInc=1e-5, maxNumInc=10, maxIter=25, stepLength=1
+>>dirichlet, name=fixZ, nSet=gen_bottom, field=displacement, 3=0.0
+>>dirichlet, name=pinY, nSet=gen_bottomLeftBack, field=displacement, 2=0.0
+>>dirichlet, name=pull, nSet=gen_right, field=displacement, 1=0.1
